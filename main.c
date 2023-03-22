@@ -4,9 +4,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <limits.h>
+#include <time.h>
 
 #define IO_BUFFER 256
-
 
 
 typedef struct my_movie {
@@ -15,14 +15,26 @@ typedef struct my_movie {
     char * language;
     double rating;
 
-    struct my_movie * next;
+    struct my_movie * left;
 
 } movie_t;
 
 
 void process_file(FILE *file, char * filename) {
+    movie_t * movies[1024];
+
     printf("Now processing the chosen file named %s", filename);
+
+    //Making the directory
+    char dirname[256];
+    srand(time(NULL));
+    int random = rand() % 10000;
+    sprintf(dirname, "./cashau_%d.movies", random);
+    mkdir(dirname, S_IRWXU | S_IRGRP | S_IXGRP);
+
     
+
+
     return;
 }
 
