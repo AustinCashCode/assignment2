@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define IO_BUFFER 1000
+#define IO_BUFFER 256
 
 
 
@@ -17,7 +17,7 @@ typedef struct my_movie {
 } movie;
 
 
-void process_file() {
+void process_file(FILE *file) {
     return;
 }
 
@@ -38,6 +38,38 @@ void process_smallest() {
 //Returns 1 on succes, and 0 if the file was not found
 //Prints an error to stderr if the file was not found
 int process_custom() {
+    char buffer[IO_BUFFER];
+    int length = 0;
+
+    //The next two lines of code is not mine, it was provided by 
+    //stackoverflow commenter M.M in 2014. See
+    //https://stackoverflow.com/questions/7898215/how-to-clear-input-buffer-in-c
+
+    //This loop clears the input buffer. If you are wondering why I don't just use
+    //fflush, fflush on stdin is considered undefined behavior, and is not portable.
+    //I made the error of including both scanf() and fgets() in this program, so
+    //I have to clear the stdin buffer before I can actually do anything else.
+    int c;
+    while ( (c = getchar()) != '\n' && c != EOF ) { }
+
+    printf("Enter the complete file name: ");
+    fgets(buffer, IO_BUFFER, stdin);
+
+    //fgets gets the newline character, so we need to replace it
+    //with a null character
+    if(length = strlen(buffer)) {
+        buffer[length - 1] = '\0';
+    }
+
+    FILE *file = fopen(buffer, "r");
+
+    if(!file) {
+        fprintf(stderr, "The file %s was not found. Try again", buffer);
+        return 0;
+    }
+    
+    process_file(file);
+
     return 1;
 }
 
