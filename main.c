@@ -33,7 +33,56 @@ void process_smallest() {
 }
 
 
-void process_custom() {
+//Gets input from the user for which file
+//they want to process.
+//Returns 1 on succes, and 0 if the file was not found
+//Prints an error to stderr if the file was not found
+int process_custom() {
+    return 1;
+}
+
+
+
+void choose_action() {
+    int sw_nav = 0;
+    int ret_nav = 0;
+
+    while(ret_nav == 0){
+        printf(
+            "Which file you want to process?\n"
+            "Enter 1 to pick the largest file\n"
+            "Enter 2 to pick the smallest file\n"
+            "Enter 3 to specify the name of a file\n\n"
+            "Enter a choice from 1 to 3:  "
+        );
+
+        scanf("%d", &sw_nav);
+
+        //This switch will call the appropriate function.
+        //The process functions are really just wrappers
+        //for the process_file() function, so we get
+        //any input we need in those functions.
+        switch (sw_nav) {
+            case 1:
+                process_largest();
+                ret_nav = 1;
+                break;
+
+            case 2:
+                process_smallest();
+                ret_nav = 1;
+                break;
+
+            case 3:
+                //
+                ret_nav = process_custom();
+                break;
+            
+            default:
+                fprintf(stderr, "Invalid entry, returning to main menu\n");
+                break;
+        }
+    }
     return;
 }
 
@@ -43,7 +92,6 @@ void process_custom() {
 int main(void)
 {
     int nav = 0;
-    int sw_nav = 0; //used for the switch statement
     char input[IO_BUFFER];
 
 
@@ -57,38 +105,8 @@ int main(void)
         if(nav != 1 && nav != 2) {
             fprintf(stderr, "Please enter 1. or 2.\n");
         }
-        else if (nav == 1) {
-            printf(
-                "Which file you want to process?\n"
-                "Enter 1 to pick the largest file\n"
-                "Enter 2 to pick the smallest file\n"
-                "Enter 3 to specify the name of a file\n\n"
-                "Enter a choice from 1 to 3:  "
-            );
-
-            scanf("%d", &sw_nav);
-
-            //This switch will call the appropriate function.
-            //The process functions are really just wrappers
-            //for the process_file() function, so we get
-            //any input we need in those functions.
-            switch (sw_nav) {
-                case 1:
-                    process_largest();
-                    break;
-
-                case 2:
-                    process_smallest();
-                    break;
-
-                case 3:
-                    process_custom();
-                    break;
-                
-                default:
-                    fprintf(stderr, "Invalid entry, returning to main menu\n");
-                    break;
-            }
+        if (nav == 1) {
+            choose_action();
         }
     }
     return EXIT_SUCCESS;
