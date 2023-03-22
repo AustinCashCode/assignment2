@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <limits.h>
 
 #define IO_BUFFER 256
 
@@ -14,21 +17,101 @@ typedef struct my_movie {
 
     struct my_movie * next;
 
-} movie;
+} movie_t;
 
 
-void process_file(FILE *file) {
+void process_file(FILE *file, char * filename) {
+    printf("Now processing the chosen file named %s", filename);
+    
     return;
 }
 
 
-
+//Finds the largest movie_*.csv file 
+//by filesize and opens it to be processed
+//for process_file.
 void process_largest() {
+    DIR *dir = opendir(".");
+    struct dirent *entry;
+    struct stat file_stat;
+    char filepath[2048];
+    off_t largest = 0;
+    char largest_fname[256] = {0};
+
+    while (entry = readdir(dir)) {
+        if(strncmp(entry -> d_name, "movies_", 7) == 0 && strstr(entry -> d_name, ".csv") != NULL) {
+            snprintf(filepath, sizeof(filepath), "%s/%s", ".", entry->d_name);
+
+        if (stat(filepath, &file_stat) == 0) {
+            if (file_stat.st_size > largest) {
+                largest = file_stat.st_size;
+                strncpy(largest_fname, filepath, sizeof(largest_fname));
+                }
+            }   
+        }
+    }
+
+    closedir(dir);
+
+    if(largest_fname[0]) {
+        FILE *file = fopen(largest_fname, "r");
+
+        if(!file) {
+            fprintf(stderr, "Could not open largest file\n");
+        }
+
+        process_file(file, largest_fname);
+        fclose(file);
+    }
+    else {
+        fprintf(stderr, "No file matching format: movies_*.csv\n");
+    }
+
     return;
 }
 
 
+
+//Finds the smallest movie_*.csv file 
+//by filesize and opens it to be processed
+//for process_file.
 void process_smallest() {
+    DIR *dir = opendir(".");
+    struct dirent *entry;
+    struct stat file_stat;
+    char filepath[2048];
+    off_t smallest = LLONG_MAX;
+    char smallest_fname[256] = {0};
+
+    while (entry = readdir(dir)) {
+        if(strncmp(entry -> d_name, "movies_", 7) == 0 && strstr(entry -> d_name, ".csv") != NULL) {
+            snprintf(filepath, sizeof(filepath), "%s/%s", ".", entry->d_name);
+
+        if (stat(filepath, &file_stat) == 0) {
+            if (file_stat.st_size <= smallest) {
+                smallest = file_stat.st_size;
+                strncpy(smallest_fname, filepath, sizeof(smallest_fname));
+                }
+            }   
+        }
+    }
+
+    closedir(dir);
+
+    if(smallest_fname[0]) {
+        FILE *file = fopen(smallest_fname, "r");
+
+        if(!file) {
+            fprintf(stderr, "Could not open largest file\n");
+        }
+
+        process_file(file, smallest_fname);
+        fclose(file);
+    }
+    else {
+        fprintf(stderr, "No file matching format: movies_*.csv\n");
+    }
+
     return;
 }
 
@@ -64,11 +147,12 @@ int process_custom() {
     FILE *file = fopen(buffer, "r");
 
     if(!file) {
-        fprintf(stderr, "The file %s was not found. Try again", buffer);
+        fprintf(stderr, "The file %s was not found. Try again\n\n", buffer);
         return 0;
     }
     
-    process_file(file);
+    process_file(file, buffer);
+    fclose(file);
 
     return 1;
 }
